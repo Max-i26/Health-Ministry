@@ -11,7 +11,7 @@ from sqlalchemy import func,text
 
 
 
-# Import models
+
 from models import db, Ministry, Hospital, HospitalAdmin, Doctor, Patient, PatientIdentifier, MedicalEncounter, QRToken, AuditLog, PatientHospital
 
 app = Flask(__name__)
@@ -448,4 +448,5 @@ with app.app_context():
         print("Default ministry created with username: ministry_admin, password: admin123")
 
 if __name__ == '__main__':
+
     app.run(debug=True)
