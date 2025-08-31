@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Hospitals{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1><i class="fas fa-hospital me-2"></i>Hospital Management</h1>
+            <p class="text-muted mb-0">Manage all hospitals in the national healthcare system</p>
+        </div>
+        <a href="{{ url_for('add_hospital') }}" class="btn btn-ministry btn-lg">
+            <i class="fas fa-plus me-2"></i>Add New Hospital
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            {% if hospitals %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Hospital Details</th>
+                                <th>Code</th>
+                                <th>Location</th>
+                                <th>Administrator</th>
+                                <th>Statistics</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for hospital in hospitals %}
+                            <tr>
+                                <td>
+                                    <div>
+                                        <strong>{{ hospital.name }}</strong><br>
+                                        <small class="text-muted">
+                                            <i class="fas fa-phone me-1"></i>{{ hospital.contact_info.phone_primary if hospital.contact_info else 'N/A' }}<br>
+                                            <i class="fas fa-envelope me-1"></i>{{ hospital.contact_info.email if hospital.contact_info else 'N/A' }}
+                                        </small>
+                                    </div>
+                                </td>
+                                <td><code class="fs-6">{{ hospital.code }}</code></td>
+                                <td>
+                                    {% if hospital.location %}
+                                        {{ hospital.location.city }}, {{ hospital.location.province }}<br>
+                                        <small class="text-muted">{{ hospital.location.postal_code or '' }}</small>
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if hospital.admin %}
+                                        <strong>{{ hospital.admin.full_name }}</strong><br>
+                                        <small class="text-muted">{{ hospital.admin.email }}</small>
+                                    {% else %}
+                                        <span class="text-warning">No Admin</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-2">
+                                        <span class="badge bg-success">{{ hospital.doctor_count }} Doctors</span>
+                                        <span class="badge bg-info">{{ hospital.patient_count }} Patients</span>
+                                        <span class="badge bg-warning text-dark">{{ hospital.encounter_count }} Visits</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if hospital.is_active %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Inactive</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('view_hospital_details', hospital_id=hospital.id) }}" 
+                                           class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <form method="POST" action="{{ url_for('toggle_hospital_status', hospital_id=hospital.id) }}" 
+                                              class="d-inline" onsubmit="return confirm('Are you sure?')">
+                                            {% if hospital.is_active %}
+                                                <button type="submit" class="btn btn-outline-warning btn-sm" title="Deactivate">
+                                                    <i class="fas fa-pause"></i>
+                                                </button>
+                                            {% else %}
+                                                <button type="submit" class="btn btn-outline-success btn-sm" title="Activate">
+                                                    <i class="fas fa-play"></i>
+                                                </button>
+                                            {% endif %}
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-hospital fa-4x text-muted mb-4"></i>
+                    <h4 class="text-muted">No hospitals registered</h4>
+                    <p class="text-muted">Start building the national healthcare network by adding your first hospital.</p>
+                    <a href="{{ url_for('add_hospital') }}" class="btn btn-ministry btn-lg">
+                        <i class="fas fa-plus me-2"></i>Add First Hospital
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Add Hospital{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="fas fa-plus-circle me-2"></i>Register New Hospital</h4>
+                    <p class="mb-0 text-light opacity-75">Add a new hospital to the national healthcare system</p>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <!-- Hospital Information -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="text-primary border-bottom pb-2 mb-3">
+                                    <i class="fas fa-hospital me-2"></i>Hospital Information
+                                </h5>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Hospital Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="hospital_name" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Primary Phone <span class="text-danger">*</span></label>
+                                    <input type="tel" class="form-control" name="phone_primary" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Email Address <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" name="email" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Province <span class="text-danger">*</span></label>
+                                    <select class="form-control" name="province" required>
+                                        <option value="">Select Province</option>
+                                        <option value="Western">Western</option>
+                                        <option value="Central">Central</option>
+                                        <option value="Southern">Southern</option>
+                                        <option value="Northern">Northern</option>
+                                        <option value="Eastern">Eastern</option>
+                                        <option value="North Western">North Western</option>
+                                        <option value="North Central">North Central</option>
+                                        <option value="Uva">Uva</option>
+                                        <option value="Sabaragamuwa">Sabaragamuwa</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Address <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="address_line1" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">City <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="city" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Postal Code</label>
+                                    <input type="text" class="form-control" name="postal_code">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hospital Admin Information -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="text-primary border-bottom pb-2 mb-3">
+                                    <i class="fas fa-user-tie me-2"></i>Hospital Administrator
+                                </h5>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Administrator Full Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="admin_full_name" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Administrator Phone <span class="text-danger">*</span></label>
+                                    <input type="tel" class="form-control" name="admin_phone" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Administrator Email <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" name="admin_email" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Note:</strong> Login credentials will be automatically generated and displayed after registration. 
+                            Please save these credentials securely and share them with the hospital administrator.
+                        </div>
+                        
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-ministry btn-lg px-4">
+                                <i class="fas fa-save me-2"></i>Register Hospital
+                            </button>
+                            <a href="{{ url_for('view_hospitals') }}" class="btn btn-outline-secondary btn-lg px-4 ms-3">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

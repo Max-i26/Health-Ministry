@@ -1,0 +1,335 @@
+{% extends "base.html" %}
+
+{% block title %}{{ hospital.name }} - Hospital Details{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1><i class="fas fa-hospital me-2"></i>{{ hospital.name }}</h1>
+            <p class="text-muted mb-0">Hospital Code: <code>{{ hospital.code }}</code></p>
+        </div>
+        <a href="{{ url_for('view_hospitals') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Hospitals
+        </a>
+    </div>
+
+    <!-- Hospital Information Card -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle me-2"></i>Hospital Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="fw-bold">Hospital Name:</td>
+                                    <td>{{ hospital.name }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Code:</td>
+                                    <td><code>{{ hospital.code }}</code></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Status:</td>
+                                    <td>
+                                        {% if hospital.is_active %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Registered:</td>
+                                    <td>{{ hospital.created_at.strftime('%B %d, %Y at %I:%M %p') if hospital.created_at else 'N/A' }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="fw-bold">Address:</td>
+                                    <td>
+                                        {% if hospital.location %}
+                                            {{ hospital.location.address_line1 }}<br>
+                                            {{ hospital.location.city }}, {{ hospital.location.province }}<br>
+                                            {{ hospital.location.postal_code or '' }}
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Phone:</td>
+                                    <td>{{ hospital.contact_info.phone_primary if hospital.contact_info else 'N/A' }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Email:</td>
+                                    <td>{{ hospital.contact_info.email if hospital.contact_info else 'N/A' }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Administrator Information -->
+    {% if hospital_admin %}
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-user-tie me-2"></i>Hospital Administrator</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="fw-bold">Full Name:</td>
+                                    <td>{{ hospital_admin.full_name }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Username:</td>
+                                    <td><code>{{ hospital_admin.username }}</code></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="fw-bold">Email:</td>
+                                    <td>{{ hospital_admin.email }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Phone:</td>
+                                    <td>{{ hospital_admin.contact_info.phone_primary if hospital_admin.contact_info else 'N/A' }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body text-center">
+                    <h3>{{ doctors|length }}</h3>
+                    <p class="mb-0">Active Doctors</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info">
+                <div class="card-body text-center">
+                    <h3>{{ patients|length }}</h3>
+                    <p class="mb-0">Registered Patients</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body text-center">
+                    <h3>{{ recent_encounters_count or 0 }}</h3>
+                    <p class="mb-0">This Month Visits</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body text-center">
+                    <h3>{{ audit_logs|length }}</h3>
+                    <p class="mb-0">Recent Activities</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Doctors List -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-user-md me-2"></i>Medical Staff ({{ doctors|length }})</h5>
+                </div>
+                <div class="card-body">
+                    {% if doctors %}
+                        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                            <table class="table table-sm">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>License</th>
+                                        <th>Specialties</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for doctor in doctors %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ doctor.full_name }}</strong><br>
+                                            <small class="text-muted">{{ doctor.email or 'No email' }}</small>
+                                        </td>
+                                        <td><code class="small">{{ doctor.license_no }}</code></td>
+                                        <td>
+                                            {% if doctor.specialties %}
+                                                {% for specialty in doctor.specialties[:2] %}
+                                                    <span class="badge bg-primary badge-sm">{{ specialty }}</span>
+                                                {% endfor %}
+                                                {% if doctor.specialties|length > 2 %}
+                                                    <span class="text-muted small">+{{ doctor.specialties|length - 2 }} more</span>
+                                                {% endif %}
+                                            {% else %}
+                                                <span class="text-muted">Not specified</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if doctor.is_active %}
+                                                <span class="badge bg-success badge-sm">Active</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary badge-sm">Inactive</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-user-md fa-2x text-muted mb-2"></i>
+                            <p class="text-muted">No doctors registered yet</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Patients List (Basic Info Only - No Medical Records) -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-users me-2"></i>Patients ({{ patients|length }})</h5>
+                    <small class="text-light opacity-75">Basic information only - Medical records are private</small>
+                </div>
+                <div class="card-body">
+                    {% if patients %}
+                        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                            <table class="table table-sm">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Age</th>
+                                        <th>Gender</th>
+                                        <th>Contact</th>
+                                        <th>Registered</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for patient in patients %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ patient.full_name }}</strong><br>
+                                            {% if patient.blood_type %}
+                                                <span class="badge bg-danger badge-sm">{{ patient.blood_type }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if patient.date_of_birth %}
+                                                <p>Age: {% if patient.age is not none %}{{ patient.age }} years{% else %}N/A{% endif %}</p>
+                                                {{ age }}
+                                            {% else %}
+                                                N/A
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if patient.gender %}
+                                                <span class="badge bg-secondary badge-sm">{{ patient.gender.title() }}</span>
+                                            {% else %}
+                                                N/A
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if patient.contact_info and patient.contact_info.phone_primary %}
+                                                {{ patient.contact_info.phone_primary }}
+                                            {% else %}
+                                                N/A
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ patient.created_at.strftime('%Y-%m-%d') if patient.created_at else 'N/A' }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-users fa-2x text-muted mb-2"></i>
+                            <p class="text-muted">No patients registered yet</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity Logs -->
+    {% if audit_logs %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-clipboard-list me-2"></i>Recent Hospital Activities</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Action</th>
+                                    <th>User Type</th>
+                                    <th>Details</th>
+                                    <th>Date & Time</th>
+                                    <th>IP Address</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in audit_logs %}
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-info">{{ log.action.replace('_', ' ').title() }}</span>
+                                    </td>
+                                    <td>{{ log.acting_user_type.replace('_', ' ').title() }}</td>
+                                    <td>
+                                        {% if log.details %}
+                                            <small class="text-muted">{{ log.details|truncate(50) }}</small>
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ log.created_at.strftime('%Y-%m-%d %H:%M:%S') if log.created_at else 'N/A' }}</td>
+                                    <td><code class="small">{{ log.ip_address or 'N/A' }}</code></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

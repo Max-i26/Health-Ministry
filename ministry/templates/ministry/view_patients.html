@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}All Patients{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1><i class="fas fa-users me-2"></i>Patient Registry</h1>
+            <p class="text-muted mb-0">Overview of all patients across healthcare facilities</p>
+        </div>
+    </div>
+
+    <div class="alert alert-info">
+        <i class="fas fa-shield-alt me-2"></i>
+        <strong>Privacy Notice:</strong> This view shows only basic patient information. 
+        Medical records, diagnoses, and treatments remain confidential and accessible only to authorized healthcare providers.
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            {% if patients %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Patient ID</th>
+                                <th>Full Name</th>
+                                <th>Age</th>
+                                <th>Gender</th>
+                                <th>Blood Type</th>
+                                <th>Contact</th>
+                                <th>Registered Hospital</th>
+                                <th>Registration Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for patient, hospital in patients %}
+                            <tr>
+                                <td><code>PAT-{{ "%06d"|format(patient.id) }}</code></td>
+                                <td>
+                                    <strong>{{ patient.full_name }}</strong>
+                                    {% if patient.email %}
+                                        <br><small class="text-muted">{{ patient.email }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if patient.age is not none %}
+                                            {{ patient.age }} years
+                                    {% else %}
+                                              N/A
+                                             {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if patient.gender %}
+                                        <span class="badge bg-secondary">{{ patient.gender.title() }}</span>
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if patient.blood_type %}
+                                        <span class="badge bg-danger">{{ patient.blood_type }}</span>
+                                    {% else %}
+                                        Unknown
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if patient.contact_info %}
+                                        {% if patient.contact_info.phone_primary %}
+                                            <i class="fas fa-phone me-1"></i>{{ patient.contact_info.phone_primary }}<br>
+                                        {% endif %}
+                                        {% if patient.guardian_number %}
+                                            <small class="text-muted">Guardian: {{ patient.guardian_number }}</small>
+                                        {% endif %}
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <strong>{{ hospital.name }}</strong><br>
+                                    <small class="text-muted">{{ hospital.location.city if hospital.location else 'N/A' }}</small>
+                                </td>
+                                <td>{{ patient.created_at.strftime('%Y-%m-%d') if patient.created_at else 'N/A' }}</td>
+                                <td>
+                                    {% if patient.is_active %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-users fa-4x text-muted mb-4"></i>
+                    <h4 class="text-muted">No patients registered</h4>
+                    <p class="text-muted">Patients will appear here once hospitals start registering them in the system.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

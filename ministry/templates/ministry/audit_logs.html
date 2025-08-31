@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Audit Logs{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1><i class="fas fa-clipboard-list me-2"></i>System Audit Logs</h1>
+            <p class="text-muted mb-0">Complete activity log for system monitoring and compliance</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            {% if audit_logs.items %}
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Action</th>
+                                <th>User Type</th>
+                                <th>User ID</th>
+                                <th>Hospital</th>
+                                <th>Details</th>
+                                <th>IP Address</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in audit_logs.items %}
+                            <tr>
+                                <td>
+                                    <small>{{ log.created_at.strftime('%Y-%m-%d %H:%M:%S') if log.created_at else 'N/A' }}</small>
+                                </td>
+                                <td>
+                                    {% if log.action == 'ministry_login' %}
+                                        <span class="badge bg-primary">{{ log.action.replace('_', ' ').title() }}</span>
+                                    {% elif log.action == 'hospital_created' %}
+                                        <span class="badge bg-success">{{ log.action.replace('_', ' ').title() }}</span>
+                                    {% elif log.action == 'hospital_deactivated' %}
+                                        <span class="badge bg-danger">{{ log.action.replace('_', ' ').title() }}</span>
+                                    {% else %}
+                                        <span class="badge bg-info">{{ log.action.replace('_', ' ').title() }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ log.acting_user_type.replace('_', ' ').title() }}</span>
+                                </td>
+                                <td><code class="small">{{ log.acting_user_id or 'N/A' }}</code></td>
+                                <td>
+                                    {% if log.hospital %}
+                                        <strong>{{ log.hospital.name }}</strong><br>
+                                        <small class="text-muted">{{ log.hospital.code }}</small>
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if log.details %}
+                                        <small class="text-muted">{{ log.details|string|truncate(80) }}</small>
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                                <td><code class="small">{{ log.ip_address or 'N/A' }}</code></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                {% if audit_logs.pages > 1 %}
+                <nav aria-label="Audit logs pagination" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if audit_logs.has_prev %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('view_audit_logs', page=audit_logs.prev_num) }}">Previous</a>
+                            </li>
+                        {% endif %}
+                        
+                        {% for page_num in audit_logs.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                            {% if page_num %}
+                                {% if page_num != audit_logs.page %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('view_audit_logs', page=page_num) }}">{{ page_num }}</a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ page_num }}</span>
+                                    </li>
+                                {% endif %}
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">…</span>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if audit_logs.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('view_audit_logs', page=audit_logs.next_num) }}">Next</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-clipboard-list fa-4x text-muted mb-4"></i>
+                    <h4 class="text-muted">No audit logs found</h4>
+                    <p class="text-muted">System activities will be logged here for monitoring and compliance purposes.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
